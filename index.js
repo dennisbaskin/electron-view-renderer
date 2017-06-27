@@ -72,10 +72,30 @@ class ElectronViewRenderer {
     this.populateDefaultRenderers()
   }
 
-  add(name, data) {
+ /**
+  * Allows user to define a template renderer.
+  *
+  * @param {string} name - required, name of renderer. Example: 'ejs'
+  * @param {Object} data - required
+  * @param {string} data.extension -
+  * @callback data.rendererAction - required, used to define how the processed
+  *     file should be processed based on the filePath and viewData parameters.
+  *     The callback parameter must be called, and expects the rendered HTML
+  *     output after parsing.
+  * @param {string} filePath - The path and file name to requested template file
+  * @param {Object} viewData - Additional view data in case it is supported by renderer
+  * @param {function} callback - required callback to be called with the rendered HTML
+  */
+  add(name, {extension = null, rendererAction}) {
     if (!name) throw new Error('Renderer name required')
+
+    const data = {
+      extension: extension,
+      rendererAction: rendererAction,
+      name: name,
+    }
+
     this._renderers[name] = data
-    this._renderers[name].name = name
   }
 
   load(browserWindow, view, viewData) {
