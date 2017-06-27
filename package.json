@@ -27,7 +27,7 @@
     "url"
   ],
   "author": "Dennis Baskin <dennis@dennisbaskin.com>",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/dennisbaskin/electron-view-renderer/issues"
   },
