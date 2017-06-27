@@ -69,7 +69,7 @@ class ElectronViewRenderer {
     this._assetsProtocolName = assetsProtocolName
     this._viewPath = viewPath
 
-    this.populateDefaultRenderers()
+    this._populateDefaultRenderers()
   }
 
  /**
@@ -105,37 +105,6 @@ class ElectronViewRenderer {
       query: viewData,
       slashes: true,
     }))
-  }
-
-  populateEJSRenderer() {
-    this.add('ejs', {
-      extension: '.ejs',
-      viewPath: 'views',
-      rendererAction: (filePath, viewData, callback) => {
-        ejs.renderFile(filePath, viewData, {}, (error, html) => {
-          if (error) {
-            if (error.file) error.message += `\n\nERROR @(${error.file}:${error.line}:${error.column})`
-            throw new Error(error)
-          }
-
-          callback(html)
-        })
-      }
-    })
-  }
-
-  populateHAMLRenderer() {
-    // TODO: add HAML Renderer
-  }
-
-  populatePugRenderer() {
-    // TODO: add Pug Renderer
-  }
-
-  populateDefaultRenderers() {
-    this.populateEJSRenderer()
-    this.populateHAMLRenderer()
-    this.populatePugRenderer()
   }
 
   renderTemplate(request) {
@@ -181,6 +150,37 @@ class ElectronViewRenderer {
       this.setupViewProtocol()
       if (this.useAssets) this.setupAssetsProtocol()
     })
+  }
+
+  _populateEJSRenderer() {
+    this.add('ejs', {
+      extension: '.ejs',
+      viewPath: 'views',
+      rendererAction: (filePath, viewData, callback) => {
+        ejs.renderFile(filePath, viewData, {}, (error, html) => {
+          if (error) {
+            if (error.file) error.message += `\n\nERROR @(${error.file}:${error.line}:${error.column})`
+            throw new Error(error)
+          }
+
+          callback(html)
+        })
+      }
+    })
+  }
+
+  _populateHAMLRenderer() {
+    // TODO: add HAML Renderer
+  }
+
+  _populatePugRenderer() {
+    // TODO: add Pug Renderer
+  }
+
+  _populateDefaultRenderers() {
+    this._populateEJSRenderer()
+    this._populateHAMLRenderer()
+    this._populatePugRenderer()
   }
 }
 
