@@ -1,3 +1,7 @@
+/**
+ * ElectronViewRenderer module
+ */
+
 const {app, protocol} = require('electron')
 const log = require('captains-log')()
 const ejs = require('ejs')
@@ -23,6 +27,32 @@ class ElectronViewRenderer {
   get assetsPath() { return this._assetsPath }
   get assetsProtocolName() { return this._assetsProtocolName }
 
+  /**
+   * @constructor
+   * @param {Object} [options] - object instance options
+   * @param {string} [options.viewPath = 'views'] -
+   *     The path to the view directory where your template files live.
+   *     Example: './app/views' or 'views'
+   * @param {string} [options.viewProtcolName = 'view'] -
+   *     The name of the protocol used to capture the requested rendering
+   *     Example: 'view:///index' (note the extra slash signifying no host)
+   * @param {boolean} [options.useAssets = false] -
+   *     This option add an additional listener for 'asset://' protocol
+   *     Example 1: 'asset://css/main.css' (note that a host 'css' is added and
+   *         will be added in the search path before the remainder of the path
+   *         after the path set by options.assetsPath)
+   *     Example 1: 'asset:///main.css' (note that a host is not added and
+   *         the search path will be the path main.css after the path set
+   *         by options.assetsPath)
+   * @param {string} [options.assetsPath = 'assets'] - defines the location
+   *     where the assets will be searched for
+   * @param {string} [options.assetsProtocolName = 'asset'] -
+   *     The name of the protocol used to capture the requested asset path
+   *     and re point it to the path set by options.assetsPath. This is
+   *     really usefull when your assets are not in the same directory as your
+   *     view files
+   *     Example: 'asset://css/main.css' or 'asset://js/index.js'
+   */
   constructor({
     viewPath = 'views',
     viewProtcolName = 'view',
@@ -39,13 +69,33 @@ class ElectronViewRenderer {
     this._assetsProtocolName = assetsProtocolName
     this._viewPath = viewPath
 
-    this.populateDefaultRenderers()
+    this._populateDefaultRenderers()
   }
 
-  add(name, data) {
+ /**
+  * Allows user to define a template renderer.
+  *
+  * @param {string} name - required, name of renderer. Example: 'ejs'
+  * @param {Object} data - required
+  * @param {string} data.extension -
+  * @callback data.rendererAction - required, used to define how the processed
+  *     file should be processed based on the filePath and viewData parameters.
+  *     The callback parameter must be called, and expects the rendered HTML
+  *     output after parsing.
+  * @param {string} filePath - The path and file name to requested template file
+  * @param {Object} viewData - Additional view data in case it is supported by renderer
+  * @param {function} callback - required callback to be called with the rendered HTML
+  */
+  add(name, {extension = null, rendererAction}) {
     if (!name) throw new Error('Renderer name required')
+
+    const data = {
+      extension: extension,
+      rendererAction: rendererAction,
+      name: name,
+    }
+
     this._renderers[name] = data
-    this._renderers[name].name = name
   }
 
   load(browserWindow, view, viewData) {
@@ -57,54 +107,14 @@ class ElectronViewRenderer {
     }))
   }
 
-  populateEJSRenderer() {
-    this.add('ejs', {
-      extension: '.ejs',
-      viewPath: 'views',
-      rendererAction: (filePath, viewData, callback) => {
-        ejs.renderFile(filePath, viewData, {}, (error, html) => {
-          if (error) {
-            if (error.file) error.message += `\n\nERROR @(${error.file}:${error.line}:${error.column})`
-            throw new Error(error)
-          }
-
-          callback(html)
-        })
-      }
-    })
-  }
-
-  populateHAMLRenderer() {
-    // TODO: add HAML Renderer
-  }
-
-  populatePugRenderer() {
-    // TODO: add Pug Renderer
-  }
-
-  populateDefaultRenderers() {
-    this.populateEJSRenderer()
-    this.populateHAMLRenderer()
-    this.populatePugRenderer()
-  }
-
   renderTemplate(request) {
     return new Promise((resolve, reject) => {
       const renderer = this.currentRenderer
-      const parsedUrl = url.parse(request.url)
+      const parsedUrl = url.parse(request.url, true)
       const fileName = parseFilePath(request.url)
       const extension = renderer.extension || `.${renderer.name}`
       const filePath = path.join(this.viewPath, `${fileName}${extension}`)
-
-      let viewData = {}
-
-      if (parsedUrl.query) {
-        viewData = parsedUrl.query.split('&').reduce((object, item) => {
-          const [key, value] = item.split('=')
-          object[key] = value
-          return object
-        }, {})
-      }
+      const viewData = parsedUrl.query
 
       renderer.rendererAction(filePath, viewData, (renderedHTML) => {
         resolve({
@@ -140,6 +150,37 @@ class ElectronViewRenderer {
       this.setupViewProtocol()
       if (this.useAssets) this.setupAssetsProtocol()
     })
+  }
+
+  _populateEJSRenderer() {
+    this.add('ejs', {
+      extension: '.ejs',
+      viewPath: 'views',
+      rendererAction: (filePath, viewData, callback) => {
+        ejs.renderFile(filePath, viewData, {}, (error, html) => {
+          if (error) {
+            if (error.file) error.message += `\n\nERROR @(${error.file}:${error.line}:${error.column})`
+            throw new Error(error)
+          }
+
+          callback(html)
+        })
+      }
+    })
+  }
+
+  _populateHAMLRenderer() {
+    // TODO: add HAML Renderer
+  }
+
+  _populatePugRenderer() {
+    // TODO: add Pug Renderer
+  }
+
+  _populateDefaultRenderers() {
+    this._populateEJSRenderer()
+    this._populateHAMLRenderer()
+    this._populatePugRenderer()
   }
 }
 
