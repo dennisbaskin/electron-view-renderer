@@ -91,20 +91,11 @@ class ElectronViewRenderer {
   renderTemplate(request) {
     return new Promise((resolve, reject) => {
       const renderer = this.currentRenderer
-      const parsedUrl = url.parse(request.url)
+      const parsedUrl = url.parse(request.url, true)
       const fileName = parseFilePath(request.url)
       const extension = renderer.extension || `.${renderer.name}`
       const filePath = path.join(this.viewPath, `${fileName}${extension}`)
-
-      let viewData = {}
-
-      if (parsedUrl.query) {
-        viewData = parsedUrl.query.split('&').reduce((object, item) => {
-          const [key, value] = item.split('=')
-          object[key] = value
-          return object
-        }, {})
-      }
+      const viewData = parsedUrl.query
 
       renderer.rendererAction(filePath, viewData, (renderedHTML) => {
         resolve({
