@@ -1,3 +1,7 @@
+/**
+ * ElectronViewRenderer module
+ */
+
 const {app, protocol} = require('electron')
 const log = require('captains-log')()
 const ejs = require('ejs')
@@ -23,6 +27,32 @@ class ElectronViewRenderer {
   get assetsPath() { return this._assetsPath }
   get assetsProtocolName() { return this._assetsProtocolName }
 
+  /**
+   * @constructor
+   * @param {Object} [options] - object instance options
+   * @param {string} [options.viewPath = 'views'] -
+   *     The path to the view directory where your template files live.
+   *     Example: './app/views' or 'views'
+   * @param {string} [options.viewProtcolName = 'view'] -
+   *     The name of the protocol used to capture the requested rendering
+   *     Example: 'view:///index' (note the extra slash signifying no host)
+   * @param {boolean} [options.useAssets = false] -
+   *     This option add an additional listener for 'asset://' protocol
+   *     Example 1: 'asset://css/main.css' (note that a host 'css' is added and
+   *         will be added in the search path before the remainder of the path
+   *         after the path set by options.assetsPath)
+   *     Example 1: 'asset:///main.css' (note that a host is not added and
+   *         the search path will be the path main.css after the path set
+   *         by options.assetsPath)
+   * @param {string} [options.assetsPath = 'assets'] - defines the location
+   *     where the assets will be searched for
+   * @param {string} [options.assetsProtocolName = 'asset'] -
+   *     The name of the protocol used to capture the requested asset path
+   *     and re point it to the path set by options.assetsPath. This is
+   *     really usefull when your assets are not in the same directory as your
+   *     view files
+   *     Example: 'asset://css/main.css' or 'asset://js/index.js'
+   */
   constructor({
     viewPath = 'views',
     viewProtcolName = 'view',
