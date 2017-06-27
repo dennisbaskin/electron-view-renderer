@@ -1,0 +1,35 @@
+{
+  "name": "electron-view-renderer",
+  "version": "1.0.0",
+  "description": "View rendering engine for electron framework.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/dennisbaskin/electron-view-renderer.git"
+  },
+  "keywords": [
+    "electron",
+    "view",
+    "renderer",
+    "browserWindow",
+    "html",
+    "ejs",
+    "pug",
+    "jade",
+    "haml",
+    "templates",
+    "templating",
+    "views",
+    "rendering",
+    "url"
+  ],
+  "author": "Dennis Baskin <dennis@dennisbaskin.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dennisbaskin/electron-view-renderer/issues"
+  },
+  "homepage": "https://github.com/dennisbaskin/electron-view-renderer#readme"
+}
