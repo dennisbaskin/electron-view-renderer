@@ -82,7 +82,8 @@ project/
 │       └── main.css
 ├── views/
 │   └── index.ejs
-└── main.js
+├── main.js
+└── package.json
 ```
 
 project/main.js:
@@ -120,7 +121,7 @@ function createWindow () {
 
   // NOTE: instead of loadig a url as the Quick Start example shows, we are
   //       going to use the viewRenderer helper
-  viewRenderer.load(window, 'index', {name: "Bob"})
+  viewRenderer.load(win, 'index', {name: "Bob"})
 
   // Open the DevTools.
   win.webContents.openDevTools()
@@ -185,6 +186,25 @@ project/assets/css/main.css:
 body {
   background-color: #bada55;
 }
+```
+
+Make sure electron command is available
+
+```
+npm install -g electron
+```
+
+Add the package.json
+
+```
+npm init
+npm install --save electron electron-view-renderer
+```
+
+Run the example
+
+```
+electron .
 ```
 
 ## Adding custom renderers
