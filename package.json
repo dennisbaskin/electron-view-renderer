@@ -31,5 +31,12 @@
   "bugs": {
     "url": "https://github.com/dennisbaskin/electron-view-renderer/issues"
   },
-  "homepage": "https://github.com/dennisbaskin/electron-view-renderer#readme"
+  "homepage": "https://github.com/dennisbaskin/electron-view-renderer#readme",
+  "dependencies": {
+    "captains-log": "^1.0.2",
+    "ejs": "^2.5.6",
+    "electron": "^1.6.11",
+    "haml": "^0.4.3",
+    "pug": "^2.0.0-rc.2"
+  }
 }
