@@ -1,7 +1,6 @@
 /**
  * ElectronViewRenderer module
  */
-
 const {app, protocol} = require('electron')
 const log = require('captains-log')()
 const ejs = require('ejs')
@@ -59,7 +58,7 @@ class ElectronViewRenderer {
     useAssets = false,
     assetsPath = 'assets',
     assetsProtocolName = 'asset'
-  }) {
+  } = {}) {
     this._renderers = {}
     this._currentRenderer = {}
 
