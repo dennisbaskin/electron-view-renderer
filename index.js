@@ -61,6 +61,7 @@ class ElectronViewRenderer {
   } = {}) {
     this._renderers = {}
     this._currentRenderer = {}
+    this._views = {}
 
     this._viewProtcolName = viewProtcolName
     this._useAssets = useAssets
@@ -97,11 +98,17 @@ class ElectronViewRenderer {
     this._renderers[name] = data
   }
 
-  load(browserWindow, view, viewData) {
+  load(browserWindow, view, viewData, {query = {}} = {}) {
+    this._views[view] = {
+      viewData: viewData
+    }
+
+    query._view = view
+
     return browserWindow.loadURL(url.format({
       pathname: view,
       protocol: 'view:',
-      query: viewData,
+      query: query,
       slashes: true,
     }))
   }
@@ -113,7 +120,7 @@ class ElectronViewRenderer {
       const fileName = parseFilePath(request.url)
       const extension = renderer.extension || `.${renderer.name}`
       const filePath = path.join(this.viewPath, `${fileName}${extension}`)
-      const viewData = parsedUrl.query
+      const viewData = this._views[parsedUrl.query._view].viewData
 
       renderer.rendererAction(filePath, viewData, (renderedHTML) => {
         resolve({
