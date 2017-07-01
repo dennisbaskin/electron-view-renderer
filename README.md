@@ -1,8 +1,10 @@
 # Electron View Renderer
 
-[![npm](https://img.shields.io/npm/v/npm.svg?style=flat-square)]() \
-[![npm](https://img.shields.io/npm/l/express.svg?style=flat-square)]() \
+[![npm](https://img.shields.io/npm/v/npm.svg?style=flat-square)]()
+[![npm](https://img.shields.io/npm/l/express.svg?style=flat-square)]()
 [![node](https://img.shields.io/node/v/gh-badges.svg?style=flat-square)]()
+[![node](https://img.shields.io/node/v/gh-badges.svg?style=flat-square)]()
+[![electron](https://img.shields.io/badge/electron-v1.6.11-blue.svg?style=flat-square)]()
 
 This package is intended to work with the electron framework for building
 desktop apps. It allows developers to parse templates on the fly vs creating
