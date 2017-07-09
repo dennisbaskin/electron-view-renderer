@@ -11,7 +11,7 @@ const parseFilePath = (urlString) => {
   const parsedUrl = url.parse(urlString)
   let fileName = parsedUrl.pathname
 
-  if (process.platform === 'win32') fileName = pathname.substr(1)
+  if (process.platform === 'win32') fileName = fileName.substr(1)
   fileName = fileName.replace(/(?:\s|%20)/g, ' ')
 
   return fileName
