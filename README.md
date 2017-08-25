@@ -234,6 +234,9 @@ viewRenderer.add('ejs', {
 
 ## Dependencies
 
+NOTE: this package does not officialy support electron-prebuilt. Please see
+https://stackoverflow.com/questions/41574586/what-is-the-difference-between-electron-and-electron-prebuilt
+
 Package | Version
 --- |:---:
 [electron](https://www.npmjs.com/package/electron) | 1.6.11
