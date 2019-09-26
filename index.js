@@ -8,13 +8,11 @@ const path = require('path')
 const url = require('url')
 
 const parseFilePath = (urlString) => {
-  const parsedUrl = url.parse(urlString)
+  const parsedUrl = new URL(urlString)
   let fileName = parsedUrl.pathname
 
   if (process.platform === 'win32') fileName = fileName.substr(1)
-  fileName = fileName.replace(/(?:\s|%20)/g, ' ')
-
-  return fileName
+  return fileName.replace(/(?:\s|%20)/g, ' ')
 }
 
 class ElectronViewRenderer {
