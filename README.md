@@ -27,7 +27,7 @@ Currently the following are added by default:
 ## Install
 
 ```
-npm install --save electron-view-renderer
+npm install --save electron electron-view-renderer
 ```
 
 ## Usage
@@ -71,10 +71,39 @@ const window = new BrowserWindow({
 
 viewRenderer.load(window, 'index', {myLocalVar: "value"})
 ```
+## Adding custom renderers
 
-### Using the electron Quick Start Example
+The best example given could be with how ejs is added internally. The main
+requirement is that there is a rendererAction and that its callback is called
+with the rendered HTML:
 
-Given a basic file structure:
+```
+viewRenderer.add('ejs', {
+  extension: '.ejs',
+  viewPath: 'views',
+  rendererAction: (filePath, viewData, callback) => {
+    ejs.renderFile(filePath, viewData, {}, (error, html) => {
+      if (error) {
+        if (error.file) error.message += `\n\nERROR @(${error.file}:${error.line}:${error.column})`
+        throw new Error(error)
+      }
+
+      callback(html)
+    })
+  }
+})
+```
+
+## Example app
+
+You can run a basic example by switching directory into `./example` and then running the following:
+
+```
+npm install
+npm start
+```
+
+The example is broken down as follows, given a basic file structure:
 
 ```
 project/
@@ -93,7 +122,7 @@ project/main.js:
 const {app, BrowserWindow} = require('electron')
 const ElectronViewRenderer = require('electron-view-renderer')
 const path = require('path')
-const url = require('url')
+const pug = require('pug')
 
 const viewRenderer = new ElectronViewRenderer({
   viewPath: 'views',
@@ -105,61 +134,48 @@ const viewRenderer = new ElectronViewRenderer({
 
 viewRenderer.use('ejs')
 
-// Keep a global reference of the window object, if you don't, the window will
-// be closed automatically when the JavaScript object is garbage collected.
-let win
+// Or register custom renderers:
+//
+// viewRenderer.add('pug', {
+//   extension: '.pug',
+//   viewPath: 'views',
+//   rendererAction: (filePath, viewData, callback) => {
+//     pug.renderFile(filePath, viewData, (error, html) => {
+//       if (error) {
+//         if (error.file) error.message += `\n\nERROR @(${error.file}:${error.line}:${error.column})`
+//         throw new Error(error)
+//       }
+//
+//       callback(html)
+//     })
+//   }
+// })
+//
+// viewRenderer.use('pug')
+
+let mainWindow
 
 function createWindow () {
-  // Create the browser window.
-  win = new BrowserWindow({width: 800, height: 600})
-
-  // // and load the index.html of the app.
-  // win.loadURL(url.format({
-  //   pathname: path.join(__dirname, 'index.html'),
-  //   protocol: 'file:',
-  //   slashes: true
-  // }))
-
-  // NOTE: instead of loadig a url as the Quick Start example shows, we are
-  //       going to use the viewRenderer helper
-  viewRenderer.load(win, 'index', {name: "Bob"})
-
-  // Open the DevTools.
-  win.webContents.openDevTools()
-
-  // Emitted when the window is closed.
-  win.on('closed', () => {
-    // Dereference the window object, usually you would store windows
-    // in an array if your app supports multi windows, this is the time
-    // when you should delete the corresponding element.
-    win = null
+  mainWindow = new BrowserWindow({
+    width: 800,
+    height: 600,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js')
+    }
   })
+
+  // NOTE: instead of loading a url as the Quick Start example shows, we are
+  //       going to use the viewRenderer helper
+  const viewOptions = {name: "Bob"}
+  viewRenderer.load(mainWindow, 'index', viewOptions)
+
+  mainWindow.webContents.openDevTools()
+  mainWindow.on('closed', () => { mainWindow = null })
 }
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
 app.on('ready', createWindow)
-
-// Quit when all windows are closed.
-app.on('window-all-closed', () => {
-  // On macOS it is common for applications and their menu bar
-  // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
-})
-
-app.on('activate', () => {
-  // On macOS it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
-  if (win === null) {
-    createWindow()
-  }
-})
-
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
+app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit() })
+app.on('activate', () => { if (mainWindow === null) createWindow() })
 ```
 
 project/views/index.ejs:
@@ -189,48 +205,6 @@ body {
 }
 ```
 
-Make sure electron command is available
-
-```
-npm install -g electron
-```
-
-Add the package.json
-
-```
-npm init
-npm install --save electron electron-view-renderer
-```
-
-Run the example
-
-```
-electron .
-```
-
-## Adding custom renderers
-
-The best example given could be with how ejs is added internally. The main
-requirement is that there is a rendererAction and that its callback is called
-with the rendered HTML:
-
-```
-viewRenderer.add('ejs', {
-  extension: '.ejs',
-  viewPath: 'views',
-  rendererAction: (filePath, viewData, callback) => {
-    ejs.renderFile(filePath, viewData, {}, (error, html) => {
-      if (error) {
-        if (error.file) error.message += `\n\nERROR @(${error.file}:${error.line}:${error.column})`
-        throw new Error(error)
-      }
-
-      callback(html)
-    })
-  }
-})
-```
-
 ## Dependencies
 
 NOTE: this package does not officialy support electron-prebuilt. Please see
@@ -238,11 +212,11 @@ https://stackoverflow.com/questions/41574586/what-is-the-difference-between-elec
 
 Package | Version
 --- |:---:
-[electron](https://www.npmjs.com/package/electron) | 1.6.11
-[ejs](https://www.npmjs.com/package/ejs) | 2.5.6
-[haml](https://www.npmjs.com/package/haml) | 0.4.3
-[pug](https://www.npmjs.com/package/pug) | 2.0.0-rc.2
-[captains-log](https://www.npmjs.com/package/captains-log) | 1.0.2
+[electron](https://www.npmjs.com/package/electron) | ^6.0.10
+[ejs](https://www.npmjs.com/package/ejs) | ^2.7.1
+[haml](https://www.npmjs.com/package/haml) | ^0.4.3
+[pug](https://www.npmjs.com/package/pug) | ^2.0.4
+[captains-log](https://www.npmjs.com/package/captains-log) | ^2.0.3
 
 ## Author
 
