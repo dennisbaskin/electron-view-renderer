@@ -113,14 +113,12 @@ class ElectronViewRenderer {
     }))
   }
 
-  renderTemplate(request) {
+  renderTemplate({fileName, viewName}) {
     return new Promise((resolve, reject) => {
       const renderer = this.currentRenderer
-      const parsedUrl = url.parse(request.url, true)
-      const fileName = parseFilePath(request.url)
       const extension = renderer.extension || `.${renderer.name}`
       const filePath = path.join(this.viewPath, `${fileName}${extension}`)
-      const viewData = this._views[parsedUrl.query._view].viewData
+      const viewData = this._views[viewName].viewData
 
       renderer.rendererAction(filePath, viewData, (renderedHTML) => {
         resolve({
@@ -133,11 +131,17 @@ class ElectronViewRenderer {
 
   setupViewProtocol() {
     protocol.registerBufferProtocol(this.viewProtcolName, (request, callback) => {
-      this.renderTemplate(request).then((resolution) => {
-        callback(resolution)
-      }).catch((error) => log.error(error))
+      const queryStringParams = new URL(request.url).searchParams
+      const viewName = queryStringParams.get('_view')
+      const fileName = parseFilePath(request.url)
+      const hasFileAndViewName = viewName && fileName
+
+      if (!hasFileAndViewName) return callback()
+
+      this.renderTemplate({fileName, viewName}).then(callback).catch(log.error)
     }, (error) => { if (error) log.error('Failed to register view protocol') })
   }
+
 
   setupAssetsProtocol() {
     protocol.registerFileProtocol(this.assetsProtocolName, (request, callback) => {
