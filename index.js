@@ -121,7 +121,7 @@ class ElectronViewRenderer {
       renderer.rendererAction(filePath, viewData, (renderedHTML) => {
         resolve({
           mimeType: 'text/html',
-          data: new Buffer(renderedHTML),
+          data: Buffer.from(renderedHTML),
         })
       })
     })
